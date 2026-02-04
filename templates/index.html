@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Health Portal | AI-Powered Insurance Cost Prediction</title>
+    
+    <!-- Fonts - Modern typography for premium look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js for 3D animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- ============================================ -->
+    <!-- ANIMATED BACKGROUND - 3D Medical Elements -->
+    <!-- ============================================ -->
+    <div id="canvas-container"></div>
+    
+    <!-- Floating particles for depth -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LOGIN PAGE -->
+    <!-- ============================================ -->
+    <div id="loginPage" class="page active">
+        <div class="login-wrapper">
+            <div class="login-container">
+                <!-- 3D Rotating Medical Logo -->
+                <div class="logo-3d">
+                    <div class="logo-cube">
+                        <div class="cube-face front">🏥</div>
+                        <div class="cube-face back">⚕️</div>
+                        <div class="cube-face right">💊</div>
+                        <div class="cube-face left">🩺</div>
+                        <div class="cube-face top">❤️</div>
+                        <div class="cube-face bottom">🏥</div>
+                    </div>
+                </div>
+
+                <h1 class="login-title">Global Health Portal</h1>
+                <p class="login-subtitle">AI-Powered Insurance Cost Prediction System</p>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="login-form">
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            placeholder="Enter your username" 
+                            required
+                            autocomplete="username"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                placeholder="Enter your password" 
+                                required
+                                autocomplete="current-password"
+                            >
+                            <span class="toggle-password" onclick="togglePassword()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        <span class="btn-text">Login to Dashboard</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+
+                    <div id="loginError" class="error-message"></div>
+                </form>
+
+                <!-- Demo Credentials -->
+                <div class="demo-credentials">
+                    <p class="demo-title">Demo Access</p>
+                    <div class="credential-chips">
+                        <button type="button" class="credential-chip" onclick="fillCredentials('admin', 'admin123')">
+                            <span class="chip-icon">👑</span>
+                            <span class="chip-text">Admin</span>
+                        </button>
+                        <button type="button" class="credential-chip" onclick="fillCredentials('doctor', 'doctor123')">
+                            <span class="chip-icon">⚕️</span>
+                            <span class="chip-text">Doctor</span>
+                        </button>
+                        <button type="button" class="credential-chip" onclick="fillCredentials('user', 'user123')">
+                            <span class="chip-icon">👤</span>
+                            <span class="chip-text">Guest</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- DASHBOARD PAGE -->
+    <!-- ============================================ -->
+    <div id="dashboardPage" class="page">
+        <!-- Top Navigation Bar -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <div class="nav-logo">
+                        <span class="logo-icon">🏥</span>
+                        <span class="logo-text">MedInsure AI</span>
+                    </div>
+                </div>
+                
+                <div class="nav-center">
+                    <div class="nav-tabs">
+                        <button class="nav-tab active" data-tab="predict">
+                            <span class="tab-icon">🔮</span>
+                            <span class="tab-text">Predict</span>
+                        </button>
+                        <button class="nav-tab" data-tab="analytics">
+                            <span class="tab-icon">📊</span>
+                            <span class="tab-text">Analytics</span>
+                        </button>
+                        <button class="nav-tab" data-tab="history">
+                            <span class="tab-icon">📋</span>
+                            <span class="tab-text">History</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="nav-right">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <span id="userInitials">A</span>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name" id="userName">User</span>
+                            <span class="user-role" id="userRole">Role</span>
+                        </div>
+                    </div>
+                    <button id="retrainBtn" class="retrain-btn" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M20.49 15a9 9 0 1 1-2-8.83"></path>
+                        </svg>
+                        Retrain Model
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Content Container -->
+        <div class="dashboard-container">
+            <!-- ============================================ -->
+            <!-- TAB 1: PREDICTION -->
+            <!-- ============================================ -->
+            <div id="predictTab" class="tab-content active">
+                <!-- Statistics Cards Row -->
+                <div class="stats-grid">
+                    <div class="stat-card gradient-purple">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="statRecords">-</div>
+                            <div class="stat-label">Total Records</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card gradient-pink">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="statAvgClaim">-</div>
+                            <div class="stat-label">Avg Claim</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card gradient-blue">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="statMaxClaim">-</div>
+                            <div class="stat-label">Max Claim</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card gradient-green">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="loginTime">-</div>
+                            <div class="stat-label">Login Time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prediction Section -->
+                <div class="prediction-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span class="title-icon">🔮</span>
+                            Insurance Cost Prediction
+                        </h2>
+                        <p class="section-subtitle">Enter patient details for AI-powered cost estimation</p>
+                    </div>
+
+                    <div class="prediction-grid">
+                        <!-- Left Column: Input Form -->
+                        <div class="prediction-form-container">
+                            <form id="predictionForm" class="prediction-form">
+                                <!-- Personal Information -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">👤 Personal Information</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Age</label>
+                                            <input type="number" id="age" min="18" max="100" value="30" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Gender</label>
+                                            <select id="gender" required>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Health Metrics -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">🏥 Health Metrics</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>BMI (Body Mass Index)</label>
+                                            <input type="number" id="bmi" min="10" max="60" step="0.1" value="25.5" required>
+                                            <small class="form-hint">Normal range: 18.5 - 24.9</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Blood Pressure (Systolic)</label>
+                                            <input type="number" id="bloodpressure" min="40" max="240" value="120" required>
+                                            <small class="form-hint">Normal: 90-120 mmHg</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Health Conditions -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">💊 Health Conditions</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Diabetic Status</label>
+                                            <select id="diabetic" required>
+                                                <option value="no">No</option>
+                                                <option value="yes">Yes</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Smoking Status</label>
+                                            <select id="smoker" required>
+                                                <option value="no">No</option>
+                                                <option value="yes">Yes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Information -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">👨‍👩‍👧‍👦 Additional Information</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Number of Children</label>
+                                            <input type="number" id="children" min="0" max="10" value="0" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Region</label>
+                                            <select id="region" required>
+                                                <option value="northeast">Northeast</option>
+                                                <option value="northwest">Northwest</option>
+                                                <option value="southeast">Southeast</option>
+                                                <option value="southwest">Southwest</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button type="submit" class="predict-btn">
+                                    <span class="btn-spinner" id="btnSpinner"></span>
+                                    <span class="btn-text" id="btnText">Get AI Prediction</span>
+                                    <span class="btn-icon">🚀</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Right Column: Prediction Result -->
+                        <div class="prediction-result-container">
+                            <div id="predictionResult" class="prediction-result">
+                                <!-- Initial State -->
+                                <div class="result-placeholder">
+                                    <div class="placeholder-icon">💡</div>
+                                    <h3>Ready for Prediction</h3>
+                                    <p>Fill in the patient details and click "Get AI Prediction" to see estimated insurance cost</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- TAB 2: ANALYTICS -->
+            <!-- ============================================ -->
+            <div id="analyticsTab" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">📊</span>
+                        Data Analytics Dashboard
+                    </h2>
+                    <p class="section-subtitle">Interactive visualizations and insights from insurance data</p>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Age Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="ageChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Smoking Impact on Cost</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="smokerChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Gender Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Diabetic Status Distribution</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="diabeticChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Regional Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="regionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">BMI vs Claim Cost</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="bmiChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- TAB 3: HISTORY -->
+            <!-- ============================================ -->
+            <div id="historyTab" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">📋</span>
+                        Prediction History
+                    </h2>
+                    <p class="section-subtitle">View your past predictions and analysis</p>
+                </div>
+
+                <div class="history-container">
+                    <div id="historyList" class="history-list">
+                        <!-- History items will be loaded here dynamically -->
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Loading history...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- FOOTER -->
+    <!-- ============================================ -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4 class="footer-title">Health Insurance Prediction Portal</h4>
+                <p class="footer-description">
+                    An AI-powered system for predicting insurance claims using machine learning.
+                </p>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Developer</h4>
+                <p class="footer-text">Created by <strong>Arya Bhanare</strong></p>
+                <p class="footer-contact">
+                    <span class="contact-icon">📱</span>
+                    <a href="tel:+919322953249" class="contact-link">+91-9322953249</a>
+                </p>
+                <div class="social-links">
+                    <a href="https://github.com/arya-bhanare" target="_blank" rel="noopener noreferrer" class="social-link">
+                        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 3 .12 3.18 1.005.315 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.225.765.84 1.23 1.92 1.23 3.225 0 4.59-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.017 12.017 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                        </svg>
+                        GitHub
+                    </a>
+                    <a href="https://www.linkedin.com/in/arya-bhanare-44a99b3a3" target="_blank" rel="noopener noreferrer" class="social-link">
+                        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
+                        </svg>
+                        LinkedIn
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4 class="footer-title">Technologies</h4>
+                <ul class="tech-list">
+                    <li>Flask</li>
+                    <li>SQL Server</li>
+                    <li>scikit-learn</li>
+                    <li>Chart.js</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p class="footer-copyright">
+                &copy; 2026 Health Insurance Prediction Portal. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

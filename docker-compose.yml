@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # SQL Server Database Container
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: health_insurance_db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Sql@Server2025!"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - health_network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Sql@Server2025!", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Flask Backend + Frontend Container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: health_insurance_app
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: production
+      SQL_SERVER: mssql
+      SQL_PORT: 1433
+      SQL_USER: sa
+      SQL_PASSWORD: Sql@Server2025!
+      SQL_DATABASE: HealthInsuranceDB
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./insurance_data.csv:/app/insurance_data.csv:ro
+    depends_on:
+      mssql:
+        condition: service_healthy
+    networks:
+      - health_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  health_network:
+    driver: bridge
+
+volumes:
+  mssql_data:
+    driver: local
