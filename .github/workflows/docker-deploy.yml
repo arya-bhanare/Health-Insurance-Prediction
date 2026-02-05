@@ -1,0 +1,66 @@
+name: Build and Push to Docker Hub
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app.py'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - 'templates/**'
+      - 'static/**'
+      - '.github/workflows/docker-deploy.yml'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/arya-bhanare-health-insurance-prediction:v1.0.0
+            ${{ secrets.DOCKER_USERNAME }}/arya-bhanare-health-insurance-prediction:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/arya-bhanare-health-insurance-prediction:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/arya-bhanare-health-insurance-prediction:buildcache,mode=max
+      
+      - name: Image digest
+        run: echo "Image built successfully"
+      
+      - name: Success notification
+        run: |
+          echo "========================================="
+          echo "✅ Docker image successfully built!"
+          echo "========================================="
+          echo ""
+          echo "Image Details:"
+          echo "  Repository: aryabhanare/arya-bhanare-health-insurance-prediction"
+          echo "  Tags: v1.0.0, latest"
+          echo ""
+          echo "Docker Hub:"
+          echo "  https://hub.docker.com/r/aryabhanare/arya-bhanare-health-insurance-prediction"
+          echo ""
+          echo "Pull Command:"
+          echo "  docker pull aryabhanare/arya-bhanare-health-insurance-prediction:latest"
+          echo ""
+          echo "========================================="
